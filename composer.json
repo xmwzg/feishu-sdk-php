@@ -1,0 +1,16 @@
+{
+    "name": "xmwzg/feishu-sdk-php",
+    "description": "feishu sdk for php",
+    "type": "library",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "authors": [
+        {
+            "name": "xmwzg",
+            "email": "2607010328@qq.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"Feishu\\": "src/feishu"}
+    }
+}
