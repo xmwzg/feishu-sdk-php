@@ -46,6 +46,23 @@ class Message
     
     }
     /**
+     * 获取飞书用户信息
+     * @Author   xmwzg
+     * @DateTime 2021-06-03
+     * @param    {string}
+     * @return   [type]     [description]
+     */
+    public function getLoginUser($code){
+        $token = $this->getToken();
+        $response = Message::getInstance()->createRequest()
+            ->setMethod('POST')
+            ->setUrl('https://open.feishu.cn/open-apis/authen/v1/access_token')
+            ->addHeaders(['content-type' => 'application/json','Authorization'=>'Bearer '.$token['tenant_access_token']])
+            ->setContent(json_encode(['grant_type' => 'authorization_code', 'code' => $code]))
+            ->send();
+        return $response->data;   
+    }
+    /**
      * 发送消息  https://open.feishu.cn/open-apis/message/v4/send/
      * @Author   xmwzg
      * @DateTime 2021-06-02
