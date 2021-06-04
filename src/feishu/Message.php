@@ -37,11 +37,12 @@ class Message
      * @return   [type]     [description]
      */
     public function getToken(){
+        $this->getConfig();
         $response = Message::getInstance()->createRequest()
             ->setMethod('GET')
             ->setUrl('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal/')
-            ->setData(['app_id' => 'cli_a01126b13ef99013', 'app_secret' => '13Wpi0jDmGaCTf48slTp1b50cWaISslo'])
-            ->send();     
+            ->setData(['app_id' => $this->appid, 'app_secret' => $this->appsecret])
+            ->send(); 
         return $response->data;
     
     }
