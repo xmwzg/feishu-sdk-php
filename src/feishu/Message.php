@@ -47,6 +47,25 @@ class Message
     
     }
     /**
+     * 根据邮箱获取用户信息
+     * @Author   xmwzg
+     * @DateTime 2021-06-16
+     * @param    {string}
+     * @return   [type]     [description]
+     */
+    public function getUserInfo($email){
+        $token = $this->getToken();
+        $response = Message::getInstance()->createRequest()
+            ->setMethod('GET')
+            ->setUrl('https://open.feishu.cn/open-apis/user/v1/batch_get_id?emails='.$email)
+            ->addHeaders(['content-type' => 'application/json; charset=utf-8','Authorization'=>'Bearer '.$token['tenant_access_token']])
+            ->send();
+        if(isset($response->data['data']['email_users'])){
+            return $response->data['data']['email_users'][$email][0];
+        }    
+        return false; 
+    }
+    /**
      * 获取飞书用户信息
      * @Author   xmwzg
      * @DateTime 2021-06-03
@@ -67,16 +86,28 @@ class Message
      * 发送消息  https://open.feishu.cn/open-apis/message/v4/send/
      * @Author   xmwzg
      * @DateTime 2021-06-02
-     * @param    {string}
+     * @param    {$jsr_email 接收人email}
      * @return   [type]     [description]
      */
-    public function sendMessage($send_name,$jrs_email,$worker_id){
-        if (!YII_ENV_PROD){
-            $jrs_email = 'jack.zg.wang@ret.cn';
-        }
+    public function sendMessage($send_name,$jsr_email,$link_url){
+
+        $user_ids = $this->getUserInfo($jsr_email);
         $token = $this->getToken();
+
+        if($user_ids){
+            $send_user_ids = ['355371e4',$user_ids['user_id']];
+            $header_content = '内部转介通知';
+        }else{
+            $send_user_ids = ['355371e4'];
+            $header_content = '内部转介通知(接收人无)';
+        }
+        if (!YII_ENV_PROD){
+            $send_user_ids = [];
+            $send_user_ids = ['355371e4'];
+            $header_content = '测试内部转介通知';
+        }
         $content = [
-            'email'=>$jrs_email,
+            'user_ids'=> $send_user_ids,
             'msg_type'=>'interactive',
         ];
         $text = [
@@ -84,15 +115,15 @@ class Message
                 'wide_screen_mode'=>true
             ],
             'card_link'=>[
-                "url"=> 'https://applink.feishu.cn/client/web_app/open?appId=cli_a01126b13ef99013&mode=appCenter&url=http://crm.ret.cn/worker/index?jsr_workerid='.$worker_id,
-                "android_url"=> 'https://applink.feishu.cn/client/web_app/open?appId=cli_a01126b13ef99013&mode=appCenter&url=http://crm.ret.cn/worker/index?jsr_workerid='.$worker_id,
-                "ios_url"=> 'https://applink.feishu.cn/client/web_app/open?appId=cli_a01126b13ef99013&mode=appCenter&url=http://crm.ret.cn/worker/index?jsr_workerid='.$worker_id,
-                "pc_url"=> 'https://applink.feishu.cn/client/web_app/open?appId=cli_a01126b13ef99013&mode=appCenter&url=http://crm.ret.cn/worker/index?jsr_workerid='.$worker_id
+                "url"=> $link_url,
+                "android_url"=> $link_url,
+                "ios_url"=> $link_url,
+                "pc_url"=> $link_url
             ],
             'header'=>[
                 'title'=>[
                     'tag'=>'plain_text',
-                    'content'=>'内部转介通知',
+                    'content'=>$header_content,
                 ]
             ],
             'elements'=>[
@@ -115,7 +146,7 @@ class Message
                                 'tag'=>'lark_md',
                                 'content'=>'点击查看详情',
                             ],
-                            'url'=>'https://applink.feishu.cn/client/web_app/open?appId=cli_a01126b13ef99013&mode=appCenter&url=http://crm.ret.cn/worker/index?jsr_workerid='.$worker_id,
+                            'url'=>$link_url,
                             'type'=>'default'
                         ]
                     ]
@@ -126,7 +157,7 @@ class Message
         $content['card'] = $text;
         $response = Message::getInstance()->createRequest()
             ->setMethod('POST')
-            ->setUrl('https://open.feishu.cn/open-apis/message/v4/send/')
+            ->setUrl('https://open.feishu.cn/open-apis/message/v4/batch_send/')
             ->addHeaders(['content-type' => 'application/json','Authorization'=>'Bearer '.$token['tenant_access_token']])
             ->setContent(json_encode($content))
             ->send();
