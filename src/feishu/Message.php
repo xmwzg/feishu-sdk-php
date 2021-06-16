@@ -84,10 +84,10 @@ class Message
                 'wide_screen_mode'=>true
             ],
             'card_link'=>[
-                "url"=> 'http://crm.ret.cn/worker/index?jsr_workerid='.$worker_id,
-                "android_url"=> 'http://crm.ret.cn/worker/index?jsr_workerid='.$worker_id,
-                "ios_url"=> 'http://crm.ret.cn/worker/index?jsr_workerid='.$worker_id,
-                "pc_url"=> 'http://crm.ret.cn/worker/index?jsr_workerid='.$worker_id
+                "url"=> 'https://applink.feishu.cn/client/web_app/open?appId=cli_a01126b13ef99013&mode=appCenter&url=http://crm.ret.cn/worker/index?jsr_workerid='.$worker_id,
+                "android_url"=> 'https://applink.feishu.cn/client/web_app/open?appId=cli_a01126b13ef99013&mode=appCenter&url=http://crm.ret.cn/worker/index?jsr_workerid='.$worker_id,
+                "ios_url"=> 'https://applink.feishu.cn/client/web_app/open?appId=cli_a01126b13ef99013&mode=appCenter&url=http://crm.ret.cn/worker/index?jsr_workerid='.$worker_id,
+                "pc_url"=> 'https://applink.feishu.cn/client/web_app/open?appId=cli_a01126b13ef99013&mode=appCenter&url=http://crm.ret.cn/worker/index?jsr_workerid='.$worker_id
             ],
             'header'=>[
                 'title'=>[
@@ -115,7 +115,7 @@ class Message
                                 'tag'=>'lark_md',
                                 'content'=>'点击查看详情',
                             ],
-                            'url'=>'http://crm.ret.cn/worker/index?jsr_workerid='.$worker_id,
+                            'url'=>'https://applink.feishu.cn/client/web_app/open?appId=cli_a01126b13ef99013&mode=appCenter&url=http://crm.ret.cn/worker/index?jsr_workerid='.$worker_id,
                             'type'=>'default'
                         ]
                     ]
