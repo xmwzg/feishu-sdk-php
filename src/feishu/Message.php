@@ -89,7 +89,7 @@ class Message
      * @param    {$jsr_email 接收人email}
      * @return   [type]     [description]
      */
-    public function sendMessage($send_name,$jsr_email,$link_url){
+    public function sendMessage($send_name,$jsr_email,$link_url,$worker_id){
 
         $user_ids = $this->getUserInfo($jsr_email);
         $token = $this->getToken();
@@ -131,7 +131,7 @@ class Message
                     'tag'=>'div',
                     'text'=>[
                         'tag'=>'plain_text',
-                        'content'=>'海豚系统提醒您，'.$send_name.'给您转介了一个项目，请及时跟进处理。',
+                        'content'=>'海豚系统提醒您，'.$send_name.'给您转介了一个项目，工单ID为 '.$worker_id.'，请及时跟进处理。',
                     ]
                 ],
                 [
