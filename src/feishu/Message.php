@@ -289,8 +289,142 @@ class Message
         echo '<pre>';
         print_r($response->data);die; 
     }
+    /**
+     * 上传图片
+     * @Author   xmwzg
+     * @DateTime 2021-06-22
+     * @param    {string}
+     */
+    public function UploadImg($image){
+        $token = $this->getToken();
 
+        $response = Message::getInstance()->createRequest()
+            ->setMethod('POST')
+            ->setUrl('https://open.feishu.cn/open-apis/im/v1/images')
+            ->addHeaders(['content-type' => 'multipart/form-data; boundary=---7MA4YWxkTrZu0gW','Authorization'=>'Bearer '.$token['tenant_access_token']])
+            ->setData(['image_type' => 'message', 'image' => $image])
+            ->send();
+        return $response->data;
+    }
+    /**
+     * 400未处理工单
+     * @Author   xmwzg
+     * @DateTime 2021-06-22
+     * @param    {string}
+     */
+    public function SendWorker($all_worker,$channel,$img,$send_email){
+        foreach ($send_email as $key => $value) {
+            $user_id = $this->getUserInfo($value);
+            if(!empty($user_id['user_id'])){
+                $send_user_ids[] = $user_id['user_id'];
+            }
+        }
+        // if (!YII_ENV_PROD){
+            $send_user_ids = [];
+            $send_user_ids = ['355371e4'];
+        // }
+        $token = $this->getToken();
+        $content = [
+            'user_ids'=> $send_user_ids,
+            'msg_type'=>'interactive',
+        ];
+        $text = [
+            'config' => [
+                'wide_screen_mode'=>true
+            ],
+            'header'=>[
+                'title'=>[
+                    'tag'=>'plain_text',
+                    'content'=>'400未处理工单',
+                ]
+            ],
+            'elements'=>[
+                [
+                    'tag'=>'div',
+                    'text'=>[
+                        'tag'=>'lark_md',
+                        'content'=>"",
+                    ],
+                    'fields'=>[
+                        [
+                            'is_short'=>false,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>'',
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**     未处理总数**\n       ".count($all_worker)
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**     400未接**\n      ".$channel[2]
+                            ]
+                        ],
+                        [
+                            'is_short'=>false,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>'',
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**     400已接**\n       ".$channel[1]
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**     内部转介**\n       ".$channel[4]
+                            ]
+                        ],
+                    ]
+                ],
+                [
+                    'tag'=>'img',
+                    'img_key'=>$img['data']['image_key'],
+                    'alt'=>[
+                        'tag'=>'plain_text',
+                        'content'=>'图片',
+                    ]
+                ],
+                [
+                    "tag"=>"action",
+                    "actions"=>[
+                        [
+                            'tag'=>'button',
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>'点击查看详情',
+                            ],
+                            'url'=>'https://applink.feishu.cn/client/web_app/open?appId=cli_a01126b13ef99013&mode=appCenter&url=http://crm.ret.cn/worker/index?from=1&state=http://crm.ret.cn/worker/index?from=1',
+                            'type'=>'default'
+                        ]
+                    ]
 
+                ]
+            ]
+        ];
+        $content['card'] = $text;
+        $response = Message::getInstance()->createRequest()
+            ->setMethod('POST')
+            ->setUrl('https://open.feishu.cn/open-apis/message/v4/batch_send/')
+            ->addHeaders(['content-type' => 'application/json','Authorization'=>'Bearer '.$token['tenant_access_token']])
+            ->setContent(json_encode($content))
+            ->send();
+        echo '<pre>';
+        print_r($response->data);die;    
+    }
 
 
 
