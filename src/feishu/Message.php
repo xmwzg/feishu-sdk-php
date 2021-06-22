@@ -319,10 +319,10 @@ class Message
                 $send_user_ids[] = $user_id['user_id'];
             }
         }
-        // if (!YII_ENV_PROD){
+        if (!YII_ENV_PROD){
             $send_user_ids = [];
             $send_user_ids = ['355371e4'];
-        // }
+        }
         $token = $this->getToken();
         $content = [
             'user_ids'=> $send_user_ids,
