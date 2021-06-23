@@ -47,7 +47,7 @@ class Message
     
     }
     /**
-     * 根据邮箱获取用户信息
+     * 根据邮箱获取用户信息 弃用
      * @Author   xmwzg
      * @DateTime 2021-06-16
      * @param    {string}
@@ -62,6 +62,27 @@ class Message
             ->send();
         if(isset($response->data['data']['email_users'])){
             return $response->data['data']['email_users'][$email][0];
+        }    
+        return false; 
+    }
+    /**
+     * 根据邮箱批量获取用户信息
+     * @Author   xmwzg
+     * @DateTime 2021-06-16
+     * @param    {string}
+     * @return   [type]     [description]
+     */
+    public function getUsersInfo($email){
+        $token = $this->getToken();
+        $params_str = implode('&emails=',$email);
+
+        $response = Message::getInstance()->createRequest()
+            ->setMethod('GET')
+            ->setUrl('https://open.feishu.cn/open-apis/user/v1/batch_get_id?emails='.$params_str)
+            ->addHeaders(['content-type' => 'application/json; charset=utf-8','Authorization'=>'Bearer '.$token['tenant_access_token']])
+            ->send();
+        if(isset($response->data['data']['email_users'])){
+            return $response->data['data']['email_users'];
         }    
         return false; 
     }
@@ -312,18 +333,28 @@ class Message
      * @DateTime 2021-06-22
      * @param    {string}
      */
-    public function SendWorker($all_worker,$channel,$img,$send_email){
-        foreach ($send_email as $key => $value) {
-            $user_id = $this->getUserInfo($value);
-            if(!empty($user_id['user_id'])){
-                $send_user_ids[] = $user_id['user_id'];
+    public function SendWorker($title,$all_worker,$channel,$img,$send_email,$project){
+        //获取用户飞书user_id
+        $users_id = $this->getUsersInfo($send_email);
+        $send_user_ids = [];
+        if($users_id){
+            foreach ($users_id as $key => $value) {
+                $send_user_ids[] = $value[0]['user_id'];
             }
         }
+
+        if(empty($send_user_ids)){
+            $send_user_ids = ['355371e4'];
+        }
+
         if (!YII_ENV_PROD){
             $send_user_ids = [];
             $send_user_ids = ['355371e4'];
         }
         $token = $this->getToken();
+        $wj = isset($channel[2])?$channel[2]:0;
+        $yj = isset($channel[1])?$channel[1]:0;
+        $zj = isset($channel[4])?$channel[4]:0;
         $content = [
             'user_ids'=> $send_user_ids,
             'msg_type'=>'interactive',
@@ -335,8 +366,9 @@ class Message
             'header'=>[
                 'title'=>[
                     'tag'=>'plain_text',
-                    'content'=>'400未处理工单',
-                ]
+                    'content'=>$title.'-400未处理工单、逾期项目未处理提醒',
+                ],
+                'template'=>'#ca151c'
             ],
             'elements'=>[
                 [
@@ -357,14 +389,14 @@ class Message
                             'is_short'=>true,
                             'text'=>[
                                 'tag'=>'lark_md',
-                                'content'=>"**     未处理总数**\n       ".count($all_worker)
+                                'content'=>"**     工单未处理总数**\n       ".count($all_worker)
                             ]
                         ],
                         [
                             'is_short'=>true,
                             'text'=>[
                                 'tag'=>'lark_md',
-                                'content'=>"**     400未接**\n      ".$channel[2]
+                                'content'=>"**     项目未处理总数**\n       ".count($project)
                             ]
                         ],
                         [
@@ -378,21 +410,36 @@ class Message
                             'is_short'=>true,
                             'text'=>[
                                 'tag'=>'lark_md',
-                                'content'=>"**     400已接**\n       ".$channel[1]
+                                'content'=>"**     400未接**\n      ".$wj
+                            ]
+                        ],
+
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**     400已接**\n       ".$yj
+                            ]
+                        ],
+                        [
+                            'is_short'=>false,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>'',
                             ]
                         ],
                         [
                             'is_short'=>true,
                             'text'=>[
                                 'tag'=>'lark_md',
-                                'content'=>"**     内部转介**\n       ".$channel[4]
+                                'content'=>"**     内部转介**\n       ".$zj
                             ]
                         ],
                     ]
                 ],
                 [
                     'tag'=>'img',
-                    'img_key'=>$img['data']['image_key'],
+                    'img_key'=>$img ? $img : '',
                     'alt'=>[
                         'tag'=>'plain_text',
                         'content'=>'图片',
@@ -405,9 +452,18 @@ class Message
                             'tag'=>'button',
                             'text'=>[
                                 'tag'=>'lark_md',
-                                'content'=>'点击查看详情',
+                                'content'=>'查看工单详情',
                             ],
                             'url'=>'https://applink.feishu.cn/client/web_app/open?appId=cli_a01126b13ef99013&mode=appCenter&url=http://crm.ret.cn/worker/index?from=1&state=http://crm.ret.cn/worker/index?from=1',
+                            'type'=>'default'
+                        ],
+                        [
+                            'tag'=>'button',
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>'查看项目详情',
+                            ],
+                            'url'=>'https://applink.feishu.cn/client/web_app/open?appId=cli_a01126b13ef99013&mode=appCenter&url=http://crm.ret.cn/project/today-commun&state=http://crm.ret.cn/project/today-commun',
                             'type'=>'default'
                         ]
                     ]
@@ -422,8 +478,6 @@ class Message
             ->addHeaders(['content-type' => 'application/json','Authorization'=>'Bearer '.$token['tenant_access_token']])
             ->setContent(json_encode($content))
             ->send();
-        echo '<pre>';
-        print_r($response->data);die;    
     }
 
 
