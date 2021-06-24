@@ -231,13 +231,6 @@ class Message
                                 'tag' => 'text',
                                 'text' => '海豚系统提醒您，某某给您转介了一个项目，请及时跟进处理。',
                             ]
-                        ],
-                        [ //第二行
-                            [
-                                'tag' => 'button',
-                                'text' => '点击跳转',
-                                'href' => 'http://crm.ret.cn',
-                            ]
                         ]
                     ]
                 ]
@@ -479,8 +472,192 @@ class Message
             ->setContent(json_encode($content))
             ->send();
     }
+    /**
+     * 应聘申请
+     * @Author   xmwzg
+     * @DateTime 2021-06-24
+     * @param    {string}
+     * @param    [type]     $data       [description]
+     * @param    [type]     $send_email [description]
+     * @return   [type]                 [description]
+     */
+    public function sendJob($data,$send_email){
+        //获取用户飞书user_id
+        $users_id = $this->getUsersInfo($send_email);
+        $send_user_ids = [];
+        foreach ($users_id as $key => $value) {
+            $send_user_ids[] = $value[0]['user_id'];
+        }
+        if (!YII_ENV_PROD){
+            $send_user_ids = [];
+            $send_user_ids = ['355371e4'];
+        }
 
-
+        $token = $this->getToken();
+        foreach ($data as $key => $value) {
+            
+        }
+        $content = [
+            'user_ids'=> $send_user_ids,
+            'msg_type'=>'interactive',
+        ];
+        $text = [
+            'config' => [
+                'wide_screen_mode'=>true
+            ],
+            'header'=>[
+                'title'=>[
+                    'tag'=>'plain_text',
+                    'content'=>'应聘申请通知',
+                ],
+                'template'=>'red'
+            ],
+            'elements'=>[
+                [
+                    'tag'=>'div',
+                    'text'=>[
+                        'tag'=>'lark_md',
+                        'content'=>"",
+                    ],
+                    'fields'=>[
+                        [
+                            'is_short'=>false,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>'',
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**姓名**\n".$data['username']
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**性别**\n".$data['sex']
+                            ]
+                        ],
+                        [
+                            'is_short'=>false,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>'',
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**手机号**\n".$data['mobile']
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**最高学历**\n".$data['h_school']
+                            ]
+                        ],
+                        [
+                            'is_short'=>false,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>'',
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**毕业院校**\n".$data['school']
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**专业**\n".$data['major']
+                            ]
+                        ],
+                        [
+                            'is_short'=>false,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>'',
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**毕业时间**\n".$data['graduation_time']
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**参加工作时间**\n".$data['job_time']
+                            ]
+                        ],
+                        [
+                            'is_short'=>false,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>'',
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**申请类型**\n".$data['type']
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**应聘部门**\n".$data['area']
+                            ]
+                        ],
+                        [
+                            'is_short'=>false,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>'',
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**申请岗位**\n".$data['post'].'-'.$data['sqgw_name']
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**简历**\n"."[".$data['file_name']."]"."("."http://retwebsite.oss-cn-beijing.aliyuncs.com/".$data['file_url'].")"
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        $content['card'] = $text;
+        $response = Message::getInstance()->createRequest()
+            ->setMethod('POST')
+            ->setUrl('https://open.feishu.cn/open-apis/message/v4/batch_send/')
+            ->addHeaders(['content-type' => 'application/json','Authorization'=>'Bearer '.$token['tenant_access_token']])
+            ->setContent(json_encode($content))
+            ->send();
+    }
 
 
 
