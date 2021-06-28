@@ -465,12 +465,16 @@ class Message
             ]
         ];
         $content['card'] = $text;
-        $response = Message::getInstance()->createRequest()
-            ->setMethod('POST')
-            ->setUrl('https://open.feishu.cn/open-apis/message/v4/batch_send/')
-            ->addHeaders(['content-type' => 'application/json','Authorization'=>'Bearer '.$token['tenant_access_token']])
-            ->setContent(json_encode($content))
-            ->send();
+        try {
+          $response = Message::getInstance()->createRequest()
+              ->setMethod('POST')
+              ->setUrl('https://open.feishu.cn/open-apis/message/v4/batch_send/')
+              ->addHeaders(['content-type' => 'application/json','Authorization'=>'Bearer '.$token['tenant_access_token']])
+              ->setContent(json_encode($content))
+              ->send();
+        } catch (\Exception $e) {
+        }
+
     }
     /**
      * 应聘申请
