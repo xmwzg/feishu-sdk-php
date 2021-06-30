@@ -498,9 +498,7 @@ class Message
         }
 
         $token = $this->getToken();
-        foreach ($data as $key => $value) {
-            
-        }
+        $content_text =  $data['file_url'] ? "**简历**\n"."[".$data['file_name']."]"."("."http://retwebsite.oss-cn-beijing.aliyuncs.com/".$data['file_url'].")" : "**简历**\n无简历";
         $content = [
             'user_ids'=> $send_user_ids,
             'msg_type'=>'interactive',
@@ -647,7 +645,7 @@ class Message
                             'is_short'=>true,
                             'text'=>[
                                 'tag'=>'lark_md',
-                                'content'=>"**简历**\n"."[".$data['file_name']."]"."("."http://retwebsite.oss-cn-beijing.aliyuncs.com/".$data['file_url'].")"
+                                'content'=> $content_text
                             ]
                         ]
                     ]
