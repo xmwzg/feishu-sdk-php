@@ -675,7 +675,7 @@ class Message
             $img_str .= "[附件".($key+1)."](http://ret-crm.oss-cn-beijing.aliyuncs.com/".$value."),";
         }
         $content = [
-            'chat_id'=>'oc_4dabf967a1c00a0b72784b8709c73f8f',
+            'chat_id'=> $chat_id,
             'msg_type'=>'interactive',
         ];
         $text = [
@@ -685,8 +685,9 @@ class Message
             'header'=>[
                 'title'=>[
                     'tag'=>'plain_text',
-                    'content'=>'this is header',
-                ]
+                    'content'=>'回款账单通知',
+                ],
+                'template'=>'red'
             ],
             'elements'=>[
                 [
