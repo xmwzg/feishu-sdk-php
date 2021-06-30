@@ -674,6 +674,9 @@ class Message
         foreach ($img_arr as $key => $value) {
             $img_str .= "[附件".($key+1)."](http://ret-crm.oss-cn-beijing.aliyuncs.com/".$value."),";
         }
+        if (!YII_ENV_PROD){
+            $chat_id = 'oc_78ce5b9dc267f972e80adae1f3833e64';
+        }
         $content = [
             'chat_id'=> $chat_id,
             'msg_type'=>'interactive',
