@@ -665,20 +665,24 @@ class Message
      * 财务会快账单
      * @Author   xmwzg
      * @DateTime 2021-06-30
-     * @param    {string}
+     * @param    {imgArr 项目名称}
+     * @param    {chatId 群ID}
+     * @param    {projectName 项目名称}
+     * @param    {collectionMoney 收款金额}
+     * @param    {moneyType 款项期次}
      * @return   [type]     [description]
      */
-    public function sendReturnBill($img_arr,$chat_id){
+    public function sendReturnBill($imgArr,$chatId,$projectName,$collectionMoney,$moneyType){
         $token = $this->getToken();
         $img_str = '';
-        foreach ($img_arr as $key => $value) {
+        foreach ($imgArr as $key => $value) {
             $img_str .= "[附件".($key+1)."](http://ret-crm.oss-cn-beijing.aliyuncs.com/".$value."),";
         }
         if (!YII_ENV_PROD){
-            $chat_id = 'oc_78ce5b9dc267f972e80adae1f3833e64';
+            $chatId = 'oc_78ce5b9dc267f972e80adae1f3833e64';
         }
         $content = [
-            'chat_id'=> $chat_id,
+            'chat_id'=> $chatId,
             'msg_type'=>'interactive',
         ];
         $text = [
@@ -688,7 +692,7 @@ class Message
             'header'=>[
                 'title'=>[
                     'tag'=>'plain_text',
-                    'content'=>'回款账单通知',
+                    'content'=> $projectName . ' 回款账单通知',
                 ],
                 'template'=>'red'
             ],
@@ -699,7 +703,31 @@ class Message
                         'tag'=>'lark_md',
                         // 'content'=>"[飞书](https://www.feishu.cn)整合即时沟通、日历、音视频会议、云文档、云盘、工作台等功能于一体，成就组织和个人，更高效、更愉悦。"
                         'content'=>"海豚系统提醒您，当前有回款账单已上传，点击".trim($img_str,',')."查看详情"
-                    ]
+                    ],
+                    'fields'=>[
+                        [
+                            'is_short'=>false,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>'',
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**收款金额**\n".$collectionMoney.'(W)'
+                            ]
+                        ],
+
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**款项期次**\n".$moneyType
+                            ]
+                        ],
+                    ],
                 ]
             ]
         ];
@@ -711,7 +739,6 @@ class Message
             ->setContent(json_encode($content))
             ->send();  
     }
-
 
 
 
