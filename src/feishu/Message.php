@@ -104,6 +104,41 @@ class Message
         return $response->data;   
     }
     /**
+     * 飞书同步请假审批状态
+     * @Author   xmwzg
+     * @DateTime 2021-08-12
+     * @param    {listenData 飞书审批完成后监听数据}
+     * @return   [type]     [description]
+     */
+    public function syncApproveStatus($listenData){
+        $listenData = json_decode($listenData,true);
+        $type = $listenData['event']['type'];
+        //leave_approvalV2飞书新版请假消息
+        if($type == 'leave_approvalV2'){
+            $calendarData = [
+                'user_id'=>$listenData['event']['user_id'],
+                'timezone'=>'Asia/Shanghai',
+                'start_time'=>strtotime($listenData['event']['leave_start_time']),
+                'end_time'=>strtotime($listenData['event']['leave_end_time']),
+                'title'=> '请假中',
+                'description'=> $listenData['event']['leave_reason']
+            ];
+
+            $token = $this->getToken();
+            $response = Message::getInstance()->createRequest()
+                ->setMethod('POST')
+                ->setUrl('https://open.feishu.cn/open-apis/calendar/v4/timeoff_events')
+                ->addHeaders(['content-type' => 'application/json','Authorization'=>'Bearer '.$token['tenant_access_token']])
+                ->setContent(json_encode($calendarData))
+                ->send();
+            $result = $response->data;
+            if($result['code'] === 0){
+                 header("HTTP/1.1 200 OK");
+            }
+        }
+
+    }
+    /**
      * 发送消息  https://open.feishu.cn/open-apis/message/v4/send/
      * @Author   xmwzg
      * @DateTime 2021-06-02
