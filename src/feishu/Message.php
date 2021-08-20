@@ -141,29 +141,30 @@ class Message
     /**
      * 发送消息  https://open.feishu.cn/open-apis/message/v4/send/
      * @Author   xmwzg
-     * @DateTime 2021-06-02
-     * @param    {$jsr_email 接收人email}
+     * @DateTime 2021-06-02 海豚系统提醒您，'.$send_name.'给您转介了一个项目，工单ID为 '.$worker_id.'，请及时跟进处理。
+     * @param    {$email array 接收人email}
      * @return   [type]     [description]
      */
-    public function sendMessage($send_name,$jsr_email,$link_url,$worker_id){
+    public function sendMessage($contentText='',$email=[],$link=''){
 
-        $user_ids = $this->getUserInfo($jsr_email);
+        $emailResult = $this->getUsersInfo($email);
+        $sendUser = [];
+        if($emailResult){
+            foreach ($emailResult as $key => $value) {
+                $sendUser[] = $value[0]['user_id'];
+            }
+        }
         $token = $this->getToken();
 
-        if($user_ids){
-            $send_user_ids = ['355371e4',$user_ids['user_id']];
-            $header_content = '内部转介通知';
-        }else{
-            $send_user_ids = ['355371e4'];
-            $header_content = '内部转介通知(接收人无)';
-        }
+        $headerContent = '海豚通知';
+
         if (!YII_ENV_PROD){
-            $send_user_ids = [];
-            $send_user_ids = ['355371e4'];
-            $header_content = '测试内部转介通知';
+            $sendUser = [];
+            $sendUser = ['355371e4'];
+            $headerContent = '测试海豚通知';
         }
         $content = [
-            'user_ids'=> $send_user_ids,
+            'user_ids'=> $sendUser,
             'msg_type'=>'interactive',
         ];
         $text = [
@@ -171,15 +172,15 @@ class Message
                 'wide_screen_mode'=>true
             ],
             'card_link'=>[
-                "url"=> $link_url,
-                "android_url"=> $link_url,
-                "ios_url"=> $link_url,
-                "pc_url"=> $link_url
+                "url"=> $link,
+                "android_url"=> $link,
+                "ios_url"=> $link,
+                "pc_url"=> $link
             ],
             'header'=>[
                 'title'=>[
                     'tag'=>'plain_text',
-                    'content'=>$header_content,
+                    'content'=>$headerContent,
                 ]
             ],
             'elements'=>[
@@ -187,7 +188,7 @@ class Message
                     'tag'=>'div',
                     'text'=>[
                         'tag'=>'plain_text',
-                        'content'=>'海豚系统提醒您，'.$send_name.'给您转介了一个项目，工单ID为 '.$worker_id.'，请及时跟进处理。',
+                        'content'=>$contentText,
                     ]
                 ],
                 [
@@ -202,7 +203,7 @@ class Message
                                 'tag'=>'lark_md',
                                 'content'=>'点击查看详情',
                             ],
-                            'url'=>$link_url,
+                            'url'=>$link,
                             'type'=>'default'
                         ]
                     ]
