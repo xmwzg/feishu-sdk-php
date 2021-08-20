@@ -146,7 +146,6 @@ class Message
      * @return   [type]     [description]
      */
     public function sendMessage($contentText='',$email=[],$link=''){
-
         $emailResult = $this->getUsersInfo($email);
         $sendUser = [];
         if($emailResult){
