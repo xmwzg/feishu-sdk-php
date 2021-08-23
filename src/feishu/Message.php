@@ -373,28 +373,37 @@ class Message
             foreach ($users_id as $key => $value) {
                 $send_user_ids[] = $value[0]['user_id'];
             }
-
-            $sendType = ['user_ids'=> $send_user_ids];
+            $content = [];
+            $content = [
+                'user_ids'=> $send_user_ids,
+                'msg_type'=>'interactive',
+            ];
             $sendUrl = 'https://open.feishu.cn/open-apis/message/v4/batch_send/';
 
         }else{
-
-            $sendType = ['chat_id'=> $sendAdd];
+            $content = [];
+            $content = [
+                'chat_id'=> $sendAdd,
+                'msg_type'=>'interactive',
+            ];
             $sendUrl = 'https://open.feishu.cn/open-apis/message/v4/send/';
         }
+
         if (!YII_ENV_PROD){
-            $sendType = ['user_ids'=> '355371e4'];
+            $content = [];
+            $content = [
+                'user_ids'=> ['355371e4'],
+                'msg_type'=>'interactive',
+            ];
+            $sendUrl = 'https://open.feishu.cn/open-apis/message/v4/batch_send/';
         }
+
         $token = $this->getToken();
         $wj = isset($channel[2])?$channel[2]:0;
         $yj = isset($channel[1])?$channel[1]:0;
         $zj = isset($channel[4])?$channel[4]:0;
 
-        $content = [
-            $sendType,
-            'msg_type'=>'interactive',
-        ];
-        
+
         $text = [
             'config' => [
                 'wide_screen_mode'=>true
@@ -515,6 +524,7 @@ class Message
               ->addHeaders(['content-type' => 'application/json','Authorization'=>'Bearer '.$token['tenant_access_token']])
               ->setContent(json_encode($content))
               ->send();
+
         } catch (\Exception $e) {
         }
 
