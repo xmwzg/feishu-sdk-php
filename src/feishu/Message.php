@@ -361,32 +361,40 @@ class Message
      * @DateTime 2021-06-22
      * @param    {string}
      */
-    public function SendWorker($title,$all_worker,$channel,$img,$send_email,$project){
-        //获取用户飞书user_id
-        $users_id = $this->getUsersInfo($send_email);
-        $send_user_ids = [];
-        if($users_id){
+    public function sendWorker($title,$all_worker,$channel,$img,$sendAdd,$project){
+        if(is_array($sendAdd)){
+            //获取用户飞书user_id
+            $users_id = $this->getUsersInfo($sendAdd);
+            if(empty($users_id)){
+                return false;
+            }
+            $send_user_ids = [];
+
             foreach ($users_id as $key => $value) {
                 $send_user_ids[] = $value[0]['user_id'];
             }
-        }
 
-        if(empty($send_user_ids)){
-            $send_user_ids = ['355371e4'];
-        }
+            $sendType = ['user_ids'=> $send_user_ids];
+            $sendUrl = 'https://open.feishu.cn/open-apis/message/v4/batch_send/';
 
+        }else{
+
+            $sendType = ['chat_id'=> $sendAdd];
+            $sendUrl = 'https://open.feishu.cn/open-apis/message/v4/send/';
+        }
         if (!YII_ENV_PROD){
-            $send_user_ids = [];
-            $send_user_ids = ['355371e4'];
+            $sendType = ['user_ids'=> '355371e4'];
         }
         $token = $this->getToken();
         $wj = isset($channel[2])?$channel[2]:0;
         $yj = isset($channel[1])?$channel[1]:0;
         $zj = isset($channel[4])?$channel[4]:0;
+
         $content = [
-            'user_ids'=> $send_user_ids,
+            $sendType,
             'msg_type'=>'interactive',
         ];
+        
         $text = [
             'config' => [
                 'wide_screen_mode'=>true
@@ -503,7 +511,7 @@ class Message
         try {
           $response = Message::getInstance()->createRequest()
               ->setMethod('POST')
-              ->setUrl('https://open.feishu.cn/open-apis/message/v4/batch_send/')
+              ->setUrl($sendUrl)
               ->addHeaders(['content-type' => 'application/json','Authorization'=>'Bearer '.$token['tenant_access_token']])
               ->setContent(json_encode($content))
               ->send();
