@@ -47,6 +47,41 @@ class Message
     
     }
     /**
+     *
+     * @Author   xmwzg
+     * @DateTime 2021-11-08
+     * @param    {string}
+     * @return   [type]     [description]
+     */
+    public function getAllUsers(){
+        $token = $this->getToken();
+        $response = Message::getInstance()->createRequest()
+            ->setMethod('GET')
+            ->setUrl('https://open.feishu.cn/open-apis/contact/v3/departments?department_id_type=open_department_id&fetch_child=true&page_size=50&parent_department_id=0')
+            ->addHeaders(['content-type' => 'application/json; charset=utf-8','Authorization'=>'Bearer '.$token['tenant_access_token']])
+            ->send();
+
+        foreach ($response->data['data']['items'] as $key => $value) {
+            $departmentUser = Message::getInstance()->createRequest()
+                ->setMethod('GET')
+                ->setUrl('https://open.feishu.cn/open-apis/contact/v3/users?department_id='.$value['department_id'].'&department_id_type=department_id')
+                ->addHeaders(['content-type' => 'application/json; charset=utf-8','Authorization'=>'Bearer '.$token['tenant_access_token']])
+                ->send();
+            if (isset($departmentUser->data['data']['items'])) {
+                foreach ($departmentUser->data['data']['items'] as $k => $v) {
+                    $user['username'][] =  $v['name'];
+                    $user['company'][] =  $value['name'];
+                }
+            }    
+        }
+        foreach ($user['username'] as $key => $value) {
+           $newUser[$key]['username'] = $value;
+           $newUser[$key]['created_at'] = strtotime(date('Y-m-d'));
+           $newUser[$key]['company'] = $user['company'][$key];
+        }
+        return $newUser;
+    }
+    /**
      * 根据邮箱获取用户信息 弃用
      * @Author   xmwzg
      * @DateTime 2021-06-16
