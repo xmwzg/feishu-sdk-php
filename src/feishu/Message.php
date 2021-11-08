@@ -60,7 +60,7 @@ class Message
             ->setUrl('https://open.feishu.cn/open-apis/contact/v3/departments?department_id_type=open_department_id&fetch_child=true&page_size=50&parent_department_id=0')
             ->addHeaders(['content-type' => 'application/json; charset=utf-8','Authorization'=>'Bearer '.$token['tenant_access_token']])
             ->send();
-
+        $daWang = yii::$app->params['dawang'];
         foreach ($response->data['data']['items'] as $key => $value) {
             $departmentUser = Message::getInstance()->createRequest()
                 ->setMethod('GET')
@@ -75,6 +75,9 @@ class Message
             }    
         }
         foreach ($user['username'] as $key => $value) {
+            if(in_array($value, $daWang)){
+                continue;
+            }
            $newUser[$key]['username'] = $value;
            $newUser[$key]['created_at'] = strtotime(date('Y-m-d'));
            $newUser[$key]['company'] = $user['company'][$key];
