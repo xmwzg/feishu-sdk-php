@@ -479,7 +479,7 @@ class Message
                             'is_short'=>true,
                             'text'=>[
                                 'tag'=>'lark_md',
-                                'content'=>"**     项目未处理总数**\n       ".count($project)
+                                'content'=>"**     线索逾期未处理总数**\n       ".count($project)
                             ]
                         ],
                         [
@@ -511,13 +511,6 @@ class Message
                                 'content'=>'',
                             ]
                         ],
-                        [
-                            'is_short'=>true,
-                            'text'=>[
-                                'tag'=>'lark_md',
-                                'content'=>"**     内部转介**\n       ".$zj
-                            ]
-                        ],
                     ]
                 ],
                 [
@@ -544,7 +537,7 @@ class Message
                             'tag'=>'button',
                             'text'=>[
                                 'tag'=>'lark_md',
-                                'content'=>'查看项目详情',
+                                'content'=>'查看线索详情',
                             ],
                             'url'=>'https://applink.feishu.cn/client/web_app/open?appId=cli_a01126b13ef99013&mode=appCenter&url=http://crm.ret.cn/project/today-commun&state=http://crm.ret.cn/project/today-commun',
                             'type'=>'default'
