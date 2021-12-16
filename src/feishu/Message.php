@@ -55,12 +55,14 @@ class Message
      */
     public function getAllUsers(){
         $token = $this->getToken();
+        
         $response = Message::getInstance()->createRequest()
             ->setMethod('GET')
             ->setUrl('https://open.feishu.cn/open-apis/contact/v3/departments?department_id_type=open_department_id&fetch_child=true&page_size=50&parent_department_id=0')
             ->addHeaders(['content-type' => 'application/json; charset=utf-8','Authorization'=>'Bearer '.$token['tenant_access_token']])
             ->send();
         $daWang = yii::$app->params['dawang'];
+
         foreach ($response->data['data']['items'] as $key => $value) {
             $departmentUser = Message::getInstance()->createRequest()
                 ->setMethod('GET')
@@ -69,7 +71,12 @@ class Message
                 ->send();
             if (isset($departmentUser->data['data']['items'])) {
                 foreach ($departmentUser->data['data']['items'] as $k => $v) {
+                    // echo '<pre>';
+                    // print_r($v);die;
                     $user['username'][] =  $v['name'];
+                    $user['avatar'][] =  $v['avatar']['avatar_72'];
+                    $user['feid'][] =  $v['user_id'];
+                    $user['email'][] =  $v['email'];
                     $user['company'][] =  $value['name'];
                 }
             }    
@@ -81,6 +88,9 @@ class Message
            $newUser[$key]['username'] = $value;
            $newUser[$key]['created_at'] = strtotime(date('Y-m-d'));
            $newUser[$key]['company'] = $user['company'][$key];
+           $newUser[$key]['avatar'] = $user['avatar'][$key];
+           $newUser[$key]['feid'] = $user['feid'][$key];
+           $newUser[$key]['email'] = $user['email'][$key];
         }
         return $newUser;
     }
@@ -327,10 +337,15 @@ class Message
      * @param    {string}
      * @return   [type]     [description]
      */
-    public function sendMessageCard(){
+    public function sendMessageCard($uid){
         $token = $this->getToken();
+        $test = '';
+        if (!YII_ENV_PROD){
+            $uid = '355371e4';
+            $test = 'ceshi';
+        }
         $content = [
-            'email'=>'jack.zg.wang@ret.cn',
+            'user_id'=> $uid,
             'msg_type'=>'interactive',
         ];
         $text = [
@@ -340,15 +355,16 @@ class Message
             'header'=>[
                 'title'=>[
                     'tag'=>'plain_text',
-                    'content'=>'this is header',
-                ]
+                    'content'=>'请及时上友答提问哦~',
+                ],
+                'template'=>'#ca151c'
             ],
             'elements'=>[
                 [
                     'tag'=>'div',
                     'text'=>[
                         'tag'=>'plain_text',
-                        'content'=>'this is very very very very very very long text',
+                        'content'=>'提问时间: 每日 09:00-次日 00:00',
                     ]
                 ],
                 [
@@ -358,9 +374,10 @@ class Message
                             'tag'=>'button',
                             'text'=>[
                                 'tag'=>'plain_text',
-                                'content'=>'read',
+                                'content'=>'现在去提'.$test,
                             ],
-                            'type'=>'default'
+                            'type'=>'default',
+                            'url'=>"https://applink.feishu.cn/TRwF2MgP"
                         ]
                     ]
                 ]
