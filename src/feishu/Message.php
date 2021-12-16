@@ -374,10 +374,19 @@ class Message
                             'tag'=>'button',
                             'text'=>[
                                 'tag'=>'plain_text',
-                                'content'=>'现在去提'.$test,
+                                'content'=>'现在就去提'.$test,
                             ],
-                            'type'=>'default',
+                            'type'=>'primary',
                             'url'=>"https://applink.feishu.cn/TRwF2MgP"
+                        ],
+                        [
+                            'tag'=>'button',
+                            'text'=>[
+                                'tag'=>'plain_text',
+                                'content'=>'每日问答传送门',
+                            ],
+                            'type'=>'primary',
+                            'url'=>"https://applink.feishu.cn/client/web_app/open?appId=cli_a1f347b22538500d&mode=appCenter&url=https://open.feishu.cn/open-apis/authen/v1/index?app_id=cli_a1f347b22538500d&redirect_uri=http%3A%2F%2Fqa.ret.cn%2Fsite%2Fflogin"
                         ]
                     ]
                 ]
