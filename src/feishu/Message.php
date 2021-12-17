@@ -355,7 +355,7 @@ class Message
             'header'=>[
                 'title'=>[
                     'tag'=>'plain_text',
-                    'content'=>'请及时上友答提问哦~',
+                    'content'=>'请及时提问哦~',
                 ],
                 'template'=>'#ca151c'
             ],
@@ -364,7 +364,7 @@ class Message
                     'tag'=>'div',
                     'text'=>[
                         'tag'=>'plain_text',
-                        'content'=>'提问时间: 每日 09:00-次日 00:00',
+                        'content'=>'提问时间: 每日 09:00-21:00',
                     ]
                 ],
                 [
@@ -383,7 +383,7 @@ class Message
                             'tag'=>'button',
                             'text'=>[
                                 'tag'=>'plain_text',
-                                'content'=>'每日问答传送门',
+                                'content'=>'精彩问答传送门',
                             ],
                             'type'=>'primary',
                             'url'=>"https://applink.feishu.cn/client/web_app/open?appId=cli_a1f347b22538500d&mode=appCenter&url=https://open.feishu.cn/open-apis/authen/v1/index?app_id=cli_a1f347b22538500d&redirect_uri=http%3A%2F%2Fqa.ret.cn%2Fsite%2Fflogin"
