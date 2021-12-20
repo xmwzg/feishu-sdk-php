@@ -114,6 +114,24 @@ class Message
         return false; 
     }
     /**
+     * 获取部门信息
+     * @Author   xmwzg
+     * @DateTime 2021-06-16
+     * @param    {string}
+     * @return   [type]     [description]
+     */
+    public function getDepartInfo(){
+        $token = $this->getToken();
+        $response = Message::getInstance()->createRequest()
+            ->setMethod('GET')
+            ->setUrl('https://open.feishu.cn/open-apis/im/v1/chats')
+            ->addHeaders(['content-type' => 'application/json; charset=utf-8','Authorization'=>'Bearer '.$token['tenant_access_token']])
+            ->send();
+        echo '<pre>';
+        print_r($response);die;   
+        return false; 
+    }
+    /**
      * 根据邮箱批量获取用户信息
      * @Author   xmwzg
      * @DateTime 2021-06-16
@@ -475,7 +493,7 @@ class Message
             'header'=>[
                 'title'=>[
                     'tag'=>'plain_text',
-                    'content'=>$title.'-400未处理工单、逾期项目未处理提醒',
+                    'content'=>$title.'-待处理工单线索统计',
                 ],
                 'template'=>'#ca151c'
             ],
@@ -498,14 +516,14 @@ class Message
                             'is_short'=>true,
                             'text'=>[
                                 'tag'=>'lark_md',
-                                'content'=>"**     工单未处理总数**\n       ".count($all_worker)
+                                'content'=>"**     未处理工单数**\n       ".count($all_worker)
                             ]
                         ],
                         [
                             'is_short'=>true,
                             'text'=>[
                                 'tag'=>'lark_md',
-                                'content'=>"**     线索逾期未处理总数**\n       ".count($project)
+                                'content'=>"**     逾期未推进线索数**\n       ".count($project)
                             ]
                         ],
                         [
@@ -515,21 +533,21 @@ class Message
                                 'content'=>'',
                             ]
                         ],
-                        [
-                            'is_short'=>true,
-                            'text'=>[
-                                'tag'=>'lark_md',
-                                'content'=>"**     400未接**\n      ".$wj
-                            ]
-                        ],
+                        // [
+                        //     'is_short'=>true,
+                        //     'text'=>[
+                        //         'tag'=>'lark_md',
+                        //         'content'=>"**     400未接**\n      ".$wj
+                        //     ]
+                        // ],
 
-                        [
-                            'is_short'=>true,
-                            'text'=>[
-                                'tag'=>'lark_md',
-                                'content'=>"**     400已接**\n       ".$yj
-                            ]
-                        ],
+                        // [
+                        //     'is_short'=>true,
+                        //     'text'=>[
+                        //         'tag'=>'lark_md',
+                        //         'content'=>"**     400已接**\n       ".$yj
+                        //     ]
+                        // ],
                         [
                             'is_short'=>false,
                             'text'=>[
