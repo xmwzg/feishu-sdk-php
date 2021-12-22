@@ -316,28 +316,106 @@ class Message
      * @param    {string}
      * @return   [type]     [description]
      */
-    public function sendMessageFu(){
+    public function sendMessageFu($data){
         $token = $this->getToken();
         $content = [
-            'email'=>'jack.zg.wang@ret.cn',
-            'msg_type'=>'post',
+            'chat_id'=> 'oc_00e07d4406f5b7bb3309e6adf53ebb00',
+            'msg_type'=>'interactive',
         ];
         $text = [
-            'post' => [
-                'zh_cn' =>[
-                    'title' => '转介通知',
-                    'content' => [
+            'config' => [
+                'wide_screen_mode'=>true
+            ],
+            'header'=>[
+                'title'=>[
+                    'tag'=>'plain_text',
+                    'content'=>'微信线索',
+                ],
+                'template'=>'#ca151c'
+            ],
+            'elements'=>[
+                [
+                    'tag'=>'div',
+                    'text'=>[
+                        'tag'=>'lark_md',
+                        'content'=>"",
+                    ],
+                    'fields'=>[
                         [
-                            [
-                                'tag' => 'text',
-                                'text' => '海豚系统提醒您，某某给您转介了一个项目，请及时跟进处理。',
+                            'is_short'=>false,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>'',
                             ]
-                        ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**     城市**\n       ".$data['chengshi']
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**     姓名**\n       ".$data['xingming']
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**     手机**\n       ".$data['shouji']
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**     邮箱**\n       ".$data['youxiang']
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**     gongsi**\n       ".$data['gongsi']
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**     来源**\n       ".$data['source']
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**     留言**\n       ".$data['liuyan']
+                            ]
+                        ],
+                        [
+                            'is_short'=>false,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>'',
+                            ]
+                        ],
+                        [
+                            'is_short'=>false,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>'',
+                            ]
+                        ],
                     ]
-                ]
+                ],
             ]
         ];
-        $content['content'] = $text;
+        $content['card'] = $text;
         $response = Message::getInstance()->createRequest()
             ->setMethod('POST')
             ->setUrl('https://open.feishu.cn/open-apis/message/v4/send/')
@@ -345,7 +423,7 @@ class Message
             ->setContent(json_encode($content))
             ->send();
         echo '<pre>';
-        print_r($response->data);die; 
+        print_r($response->data);die;    
     }
 
     /**
