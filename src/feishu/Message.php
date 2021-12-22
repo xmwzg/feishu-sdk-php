@@ -380,7 +380,7 @@ class Message
                             'is_short'=>true,
                             'text'=>[
                                 'tag'=>'lark_md',
-                                'content'=>"**     gongsi**\n       ".$data['gongsi']
+                                'content'=>"**     公司**\n       ".$data['gongsi']
                             ]
                         ],
                         [
@@ -421,9 +421,7 @@ class Message
             ->setUrl('https://open.feishu.cn/open-apis/message/v4/send/')
             ->addHeaders(['content-type' => 'application/json','Authorization'=>'Bearer '.$token['tenant_access_token']])
             ->setContent(json_encode($content))
-            ->send();
-        echo '<pre>';
-        print_r($response->data);die;    
+            ->send(); 
     }
 
     /**
