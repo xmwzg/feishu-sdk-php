@@ -308,7 +308,54 @@ class Message
         echo '<pre>';
         print_r($response->data);die; 
     }
-
+    /**
+     * 友答每日点赞
+     * @Author   xmwzg
+     * @DateTime 2021-12-23
+     * @param    {string}
+     * @return   [type]     [description]
+     */
+    public function sendPraise($email,$title){
+        $token = $this->getToken();
+        if (!YII_ENV_PROD){
+            $email = 'jack.zg.wang@ret.cn';
+        }
+        $content = [
+            'email'=>$email,
+            'msg_type'=>'post',
+        ];
+        $text = [
+            'post' => [
+                'zh_cn' =>[
+                    'title' => $title,
+                    'content' => [
+                        [
+                            [
+                                'tag' => 'text',
+                                'text' => '昨日有人在友答中给你点赞，快去',
+                            ],
+                            [
+                                'tag'=> 'a',
+                                'href'=> "https://applink.feishu.cn/client/web_app/open?appId=cli_a1f347b22538500d&mode=appCenter&url=https://open.feishu.cn/open-apis/authen/v1/index?app_id=cli_a1f347b22538500d&redirect_uri=http%3A%2F%2Fqa.ret.cn%2Fsite%2Fflogin",
+                                'text'=> "查看"
+                            ],
+                            [
+                                'tag' => 'text',
+                                'text' => '吧',
+                            ],
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        $content['content'] = $text;
+        $response = Message::getInstance()->createRequest()
+            ->setMethod('POST')
+            ->setUrl('https://open.feishu.cn/open-apis/message/v4/send/')
+            ->addHeaders(['content-type' => 'application/json','Authorization'=>'Bearer '.$token['tenant_access_token']])
+            ->setContent(json_encode($content))
+            ->send();
+    }
     /**
      * 发送富文本消息
      * @Author   xmwzg
