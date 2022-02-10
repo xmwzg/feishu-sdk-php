@@ -309,6 +309,32 @@ class Message
         print_r($response->data);die; 
     }
     /**
+     * 搜索Qa
+     * @Author   xmwzg
+     * @DateTime 2022-01-26
+     * @param    {string}
+     * @param    [type]     $search [description]
+     * @return   [type]             [description]
+     */
+    public function searchQa($search){
+        $token = $this->getToken();
+        $response = Message::getInstance()->createRequest()
+            ->setMethod('GET')
+            ->setUrl('https://open.feishu.cn/open-apis/helpdesk/v1/faqs/search')
+            ->addHeaders(['content-type' => 'application/json; charset=utf-8','X-Lark-Helpdesk-Authorization'=>'Njk3NzYyMDQ5MzIyMjUyNjk4MDpodC02MzhiM2VmOS03MGViLWQ2MjctOTM0NS1hNDQwMjMwMWI5NTQ=','Authorization'=>'Bearer '.$token['tenant_access_token']])
+            ->setData(['query' => $search])
+            ->send();
+        $searchData = json_decode($response->content,true);
+        $questionData = [];
+        if(isset($searchData['data']['items'])){
+           foreach ($searchData['data']['items'] as $key => $value) {
+               $questionData[$key]['question'] = $value['question'];
+               $questionData[$key]['answer'] = $value['answer'];
+           } 
+        }
+        return $questionData;
+    }
+    /**
      * 友答每日点赞
      * @Author   xmwzg
      * @DateTime 2021-12-23
@@ -332,11 +358,11 @@ class Message
                         [
                             [
                                 'tag' => 'text',
-                                'text' => '昨日有人在友答中给你点赞，快去',
+                                'text' => '昨日有人在友答中给你赠送金币，快去',
                             ],
                             [
                                 'tag'=> 'a',
-                                'href'=> "https://applink.feishu.cn/client/web_app/open?appId=cli_a1f347b22538500d&mode=appCenter&url=https://open.feishu.cn/open-apis/authen/v1/index?app_id=cli_a1f347b22538500d&redirect_uri=http%3A%2F%2Fqa.ret.cn%2Fsite%2Fflogin",
+                                'href'=> "https://applink.feishu.cn/client/web_app/open?appId=cli_a1f347b22538500d&mode=appCenter&url=https://open.feishu.cn/open-apis/authen/v1/index?app_id=cli_a1f347b22538500d&redirect_uri=http%3A%2F%2Fqa.ret.cn%2Fsite%2Fflogin&state=http://qa.ret.cn/question/message",
                                 'text'=> "查看"
                             ],
                             [
@@ -470,7 +496,66 @@ class Message
             ->setContent(json_encode($content))
             ->send(); 
     }
-
+    /**
+     * 发送卡片本消息
+     * @Author   xmwzg
+     * @DateTime 2021-06-02
+     * @param    {string}
+     * @return   [type]     [description]
+     */
+    public function sendQaShop($sendUser,$desc){
+        $token = $this->getToken();
+        if (!YII_ENV_PROD){
+            $sendUser = [];
+            $sendUser = ['355371e4'];
+        }
+        $content = [
+            'user_ids'=> $sendUser,
+            'msg_type'=>'interactive',
+        ];
+        $text = [
+            'config' => [
+                'wide_screen_mode'=>true
+            ],
+            'header'=>[
+                'title'=>[
+                    'tag'=>'plain_text',
+                    'content'=>'友答奖品兑换通知~',
+                ],
+                'template'=>'#ca151c'
+            ],
+            'elements'=>[
+                [
+                    'tag'=>'div',
+                    'text'=>[
+                        'tag'=>'plain_text',
+                        'content'=>$desc,
+                    ]
+                ],
+                [
+                    'tag'=>'action',
+                    'actions'=>[
+                        [
+                            'tag'=>'button',
+                            'text'=>[
+                                'tag'=>'plain_text',
+                                'content'=>'友答商城传送门',
+                            ],
+                            'type'=>'primary',
+                            'url'=>"https://applink.feishu.cn/client/web_app/open?appId=cli_a1f347b22538500d&mode=appCenter&url=https://open.feishu.cn/open-apis/authen/v1/index?app_id=cli_a1f347b22538500d&redirect_uri=http%3A%2F%2Fqa.ret.cn%2Fsite%2Fflogin&state=http://qa.ret.cn/question/shop"
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        $content['card'] = $text;
+        $response = Message::getInstance()->createRequest()
+            ->setMethod('POST')
+            ->setUrl('https://open.feishu.cn/open-apis/message/v4/batch_send/')
+            ->addHeaders(['content-type' => 'application/json','Authorization'=>'Bearer '.$token['tenant_access_token']])
+            ->setContent(json_encode($content))
+            ->send();
+    }
     /**
      * 发送卡片本消息
      * @Author   xmwzg
