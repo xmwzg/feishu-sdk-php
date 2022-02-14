@@ -335,6 +335,25 @@ class Message
         return $questionData;
     }
     /**
+     * 获取每日已提问工单
+     * @Author   xmwzg
+     * @DateTime 2022-02-10
+     * @param    {string}
+     * @return   [type]     [description]
+     */
+    public function getQuestionsWorker(){
+        $sTime = strtotime(date('Y-m-d',time()))*1000;
+        $eTime = (strtotime(date('Y-m-d',time()))+86400)*1000;
+        $token = $this->getToken();
+        $response = Message::getInstance()->createRequest()
+            ->setMethod('GET')
+            ->setUrl('https://open.feishu.cn/open-apis/helpdesk/v1/tickets')
+            ->addHeaders(['content-type' => 'application/json; charset=utf-8','X-Lark-Helpdesk-Authorization'=>'Njk3NzYyMDQ5MzIyMjUyNjk4MDpodC02MzhiM2VmOS03MGViLWQ2MjctOTM0NS1hNDQwMjMwMWI5NTQ=','Authorization'=>'Bearer '.$token['tenant_access_token']])
+            ->setData(['create_time_start' => $sTime,'create_time_end'=>$eTime,'type'=>2])
+            ->send();
+        return $response;
+    }
+    /**
      * 友答每日点赞
      * @Author   xmwzg
      * @DateTime 2021-12-23
@@ -563,7 +582,7 @@ class Message
      * @param    {string}
      * @return   [type]     [description]
      */
-    public function sendMessageCard($uid){
+    public function sendMessageCard($uid,$count_num){
         $token = $this->getToken();
         $test = '';
         if (!YII_ENV_PROD){
@@ -581,7 +600,7 @@ class Message
             'header'=>[
                 'title'=>[
                     'tag'=>'plain_text',
-                    'content'=>'请及时提问哦~',
+                    'content'=>'请及时提问哦~,本月累计未提问次数'.$count_num.'次',
                 ],
                 'template'=>'#ca151c'
             ],
@@ -625,8 +644,6 @@ class Message
             ->addHeaders(['content-type' => 'application/json','Authorization'=>'Bearer '.$token['tenant_access_token']])
             ->setContent(json_encode($content))
             ->send();
-        echo '<pre>';
-        print_r($response->data);die; 
     }
     /**
      * 上传图片
