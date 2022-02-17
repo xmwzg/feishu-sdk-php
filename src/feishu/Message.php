@@ -593,6 +593,16 @@ class Message
             'user_id'=> $uid,
             'msg_type'=>'interactive',
         ];
+        $titleText = '请及时提问哦~,本月累计未提问次数'.$count_num.'次';
+        if($count_num == 5 || $count_num == 6){
+            $titleText = '您本月累计未提问次数已达'.$count_num.'次';
+        }elseif ($count_num == 7) {
+            $titleText = '您本月累计未提问次数已达'.$count_num.'次,累计8次未提问，通知信息将发送至后台人事部';
+        }elseif ($count_num == 8) {
+            $titleText = '您本月累计未提问次数已达'.$count_num.'次,通知信息已同步发至后台人事部';
+        }elseif ($count_num<5) {
+            $titleText = '请及时提问哦~';
+        }
         $text = [
             'config' => [
                 'wide_screen_mode'=>true
@@ -600,7 +610,7 @@ class Message
             'header'=>[
                 'title'=>[
                     'tag'=>'plain_text',
-                    'content'=>'请及时提问哦~,本月累计未提问次数'.$count_num.'次',
+                    'content'=>$titleText,
                 ],
                 'template'=>'#ca151c'
             ],
@@ -1092,7 +1102,84 @@ class Message
             ->setContent(json_encode($content))
             ->send();  
     }
+    /**
+     * 累计五次未提问
+     * @Author   xmwzg
+     * @DateTime 2021-06-30
+     * @param    {imgArr 项目名称}
+     * @param    {chatId 群ID}
+     * @param    {projectName 项目名称}
+     * @param    {collectionMoney 收款金额}
+     * @param    {moneyType 款项期次}
+     * @return   [type]     [description]
+     */
+    public function sendReturnBill($imgArr,$chatId,$projectName,$collectionMoney,$moneyType){
+        $token = $this->getToken();
+        $img_str = '';
+        foreach ($imgArr as $key => $value) {
+            $img_str .= "[附件".($key+1)."](http://ret-crm.oss-cn-beijing.aliyuncs.com/".$value."),";
+        }
+        if (!YII_ENV_PROD){
+            $chatId = 'oc_78ce5b9dc267f972e80adae1f3833e64';
+        }
+        $content = [
+            'chat_id'=> $chatId,
+            'msg_type'=>'interactive',
+        ];
+        $text = [
+            'config' => [
+                'wide_screen_mode'=>true
+            ],
+            'header'=>[
+                'title'=>[
+                    'tag'=>'plain_text',
+                    'content'=> $projectName . ' 回款账单通知',
+                ],
+                'template'=>'red'
+            ],
+            'elements'=>[
+                [
+                    'tag'=>'div',
+                    'text'=>[
+                        'tag'=>'lark_md',
+                        // 'content'=>"[飞书](https://www.feishu.cn)整合即时沟通、日历、音视频会议、云文档、云盘、工作台等功能于一体，成就组织和个人，更高效、更愉悦。"
+                        'content'=>"海豚系统提醒您，当前有回款账单已上传，点击".trim($img_str,',')."查看详情"
+                    ],
+                    'fields'=>[
+                        [
+                            'is_short'=>false,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>'',
+                            ]
+                        ],
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**收款金额**\n".$collectionMoney.'(W)'
+                            ]
+                        ],
 
+                        [
+                            'is_short'=>true,
+                            'text'=>[
+                                'tag'=>'lark_md',
+                                'content'=>"**款项期次**\n".$moneyType
+                            ]
+                        ],
+                    ],
+                ]
+            ]
+        ];
+        $content['card'] = $text;
+        $response = Message::getInstance()->createRequest()
+            ->setMethod('POST')
+            ->setUrl('https://open.feishu.cn/open-apis/message/v4/send/')
+            ->addHeaders(['content-type' => 'application/json','Authorization'=>'Bearer '.$token['tenant_access_token']])
+            ->setContent(json_encode($content))
+            ->send();  
+    }
 
 
 
